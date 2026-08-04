@@ -25,7 +25,10 @@ fi
 
 if [ -x "$KC" ]; then
   echo "[validate-k8s] kubeconform schema validation"
-  "$KC" -strict -summary \
+  # -ignore-missing-schemas: some CRDs (e.g. NGINX Gateway Fabric's RateLimitPolicy) aren't
+  # published in the datree catalog below - treat "no schema found" as skipped, not a hard
+  # error, same as studylife's kubeconform job does for the same class of CRD.
+  "$KC" -strict -summary -ignore-missing-schemas \
     -ignore-filename-pattern 'kustomization.yaml' \
     -schema-location default \
     -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
