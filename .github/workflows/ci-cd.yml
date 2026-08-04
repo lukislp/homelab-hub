@@ -1,0 +1,250 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NODE_VERSION: "24"
+  IMAGE: ghcr.io/lukislp/homelab-hub
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Test stage — runs on every push to master AND every pull request
+  # ---------------------------------------------------------------------
+  test-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      # Build first so scripts/smoke.sh also exercises static/SPA-serving checks, not just
+      # the API-only subset it falls back to when dist/ is missing.
+      - run: npm run build
+      - run: npm run smoke
+
+  test-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx tsc -b --noEmit
+
+  test-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+
+  test-k8s-manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run validate:k8s
+
+  test-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # playwright-core has no bundled browser - install one and point scripts/e2e.mjs at it
+      # via PW_CHROMIUM (it also checks /opt/pw-browsers, which this doesn't use here).
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run e2e
+        run: |
+          CHROME_PATH="$(find "$HOME/.cache/ms-playwright" -type f \( -name 'chrome' -o -name 'headless_shell' \) -path '*chrome-linux*' | head -1)"
+          if [ -z "$CHROME_PATH" ]; then
+            echo "::error::could not locate installed chromium binary under ~/.cache/ms-playwright"
+            exit 1
+          fi
+          echo "Using chromium at $CHROME_PATH"
+          PW_CHROMIUM="$CHROME_PATH" npm run e2e
+
+  build:
+    # No implicit stage-sequencing under GitHub's DAG model (unlike GitLab) - wait for every
+    # test job explicitly.
+    needs: [test-smoke, test-typecheck, test-security, test-k8s-manifests, test-e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+  # ---------------------------------------------------------------------
+  # Version / docker / release — push to master only
+  # ---------------------------------------------------------------------
+  get-version:
+    needs: [build]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: homelab-hub-release-chain
+      cancel-in-progress: false
+    # @semantic-release/github verifies push/write access as part of its plugin lifecycle
+    # even during a dry run - a read-only token fails that check outright. No actual writes
+    # happen here regardless of these permissions; dry_run: true never pushes/tags/releases.
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      next_version: ${{ steps.semrel.outputs.new_release_version }}
+      published: ${{ steps.semrel.outputs.new_release_published }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: semrel
+        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
+        with:
+          dry_run: true
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/github
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fail if no next version determined
+        if: steps.semrel.outputs.new_release_published != 'true'
+        run: |
+          echo "::error::semantic-release did not determine a next version (no releasable commits since the last tag). Aborting instead of silently skipping."
+          exit 1
+
+  docker-build-push:
+    needs: [get-version]
+    if: github.event_name == 'push' && needs.get-version.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: homelab-hub-release-chain
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: write
+    env:
+      NEXT_VERSION: ${{ needs.get-version.outputs.next_version }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Guard against duplicate tag
+        run: |
+          if docker manifest inspect "${{ env.IMAGE }}:${{ env.NEXT_VERSION }}" >/dev/null 2>&1; then
+            echo "::error::registry tag ${{ env.NEXT_VERSION }} already exists (version race with a parallel run). Do NOT retry this run; wait for it to finish, then push again to produce a fresh version."
+            exit 1
+          fi
+      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ env.NEXT_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  trivy-scan:
+    needs: [get-version, docker-build-push]
+    if: github.event_name == 'push' && needs.get-version.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    env:
+      NEXT_VERSION: ${{ needs.get-version.outputs.next_version }}
+    steps:
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE }}:${{ env.NEXT_VERSION }}
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: "0"
+
+  semantic-release:
+    needs: [get-version, docker-build-push]
+    if: github.event_name == 'push' && needs.get-version.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: homelab-hub-release-chain
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: semrel
+        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
+        with:
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/github
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+      # Retry once for the narrow window where an out-of-band push to master landed between
+      # this job's checkout and its own push (the concurrency group above already serializes
+      # overlapping runs of this workflow, so this only guards against a genuinely external push).
+      - if: steps.semrel.outcome == 'failure'
+        run: |
+          git fetch origin master
+          git checkout -B master origin/master
+      - if: steps.semrel.outcome == 'failure'
+        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
+        with:
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/github
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

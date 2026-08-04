@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: homelab-hub
+  namespace: homelab-hub
+  labels:
+    app.kubernetes.io/name: homelab-hub
+spec:
+  selector:
+    app.kubernetes.io/name: homelab-hub
+  ports:
+    - name: https
+      port: 80
+      targetPort: https

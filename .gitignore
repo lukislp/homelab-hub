@@ -1,0 +1,17 @@
+node_modules/
+dist/
+data/
+screenshots/
+.tools/
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+coverage/
+*.tsbuildinfo
+.idea/
+*.local.yaml
+k8s/*.local.yaml
+CLAUDE.md

@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - deployment.yaml # includes the homelab-hub-backend-tls Certificate
+  - service.yaml
+  - httproute.yaml # includes BackendTLSPolicy + RateLimitPolicy
+# The image tag is pinned in deployment.yaml with imagePullPolicy: IfNotPresent.
+# After pushing a new tag, update it there and run
+# "kubectl -n homelab-hub rollout restart deployment/homelab-hub".

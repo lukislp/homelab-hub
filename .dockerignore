@@ -1,0 +1,12 @@
+node_modules
+dist
+data
+screenshots
+.tools
+.git
+k8s
+scripts
+*.md
+.gitignore
+.dockerignore
+Dockerfile
