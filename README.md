@@ -7,6 +7,11 @@
 
 A self-hosted link dashboard for your homelab with a **terminal·tech look**: all your services at a glance, live status with latency, opens in a new tab on click. Runs as a **single container** on k3s behind **NGINX Gateway Fabric** (Gateway API / HTTPRoute).
 
+**[Live demo](https://homelabhub-demo.lktec.org)** — read-only, running the actual
+`ghcr.io/lukislp/homelab-hub:latest` image published by this repo's own CI/CD pipeline, seeded
+with public services in place of a real homelab. Changes apply locally in your browser but
+are never saved (reload resets it).
+
 ## Features
 
 - **Manage links in the UI** — create, edit, delete (two-step confirmation). Persisted as JSON on a PVC, writes are atomic.
