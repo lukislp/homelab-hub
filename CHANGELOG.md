@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/lukislp/homelab-hub/compare/v1.1.1...v1.1.2) (2026-08-05)
+
+
+### Bug Fixes
+
+* eliminate the empty-looking first second of page load ([d633b66](https://github.com/lukislp/homelab-hub/commit/d633b66b05c1f4dee742aa876dc4588d561d9322))
+
 ## [1.1.1](https://github.com/lukislp/homelab-hub/compare/v1.1.0...v1.1.1) (2026-08-05)
 
 
