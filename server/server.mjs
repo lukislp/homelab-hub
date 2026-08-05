@@ -38,6 +38,10 @@ const SWEEP_INTERVAL_MS = Number(process.env.SWEEP_INTERVAL_MS || 15000);
 const PROBE_TIMEOUT_MS = Number(process.env.PROBE_TIMEOUT_MS || 5000);
 const MAX_BODY_BYTES = 1024 * 1024;
 const APP_VERSION = "0.1.0";
+// Public demo instances: reject writes server-side regardless of what the frontend does -
+// the frontend also skips the network round-trip entirely in this mode (see dashboard.ts),
+// but this is the actual enforcement in case /api/data is called directly.
+const READ_ONLY = process.env.READ_ONLY === "true";
 
 const log = (...args) => console.log("[hub]", ...args);
 const nowIso = () => new Date().toISOString();
@@ -396,6 +400,7 @@ function readBody(req) {
 }
 
 async function handlePut(req, res) {
+  if (READ_ONLY) return sendJson(res, 403, { error: "read-only demo instance - changes aren't saved" });
   const ct = String(req.headers["content-type"] || "");
   if (!ct.includes("application/json")) {
     return sendJson(res, 415, { error: "content-type must be application/json" });
@@ -498,7 +503,7 @@ function requestHandler(req, res) {
     return sendJson(res, 400, { error: "bad request" });
   }
 
-  if (pathname === "/api/health") return sendJson(res, 200, { ok: true, version: APP_VERSION, uptime: Math.round(process.uptime()) });
+  if (pathname === "/api/health") return sendJson(res, 200, { ok: true, version: APP_VERSION, uptime: Math.round(process.uptime()), readOnly: READ_ONLY });
   if (pathname === "/api/data") {
     if (req.method === "GET") return sendJson(res, 200, data);
     if (req.method === "PUT") return void handlePut(req, res);

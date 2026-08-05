@@ -14,6 +14,7 @@ function useClock() {
 
 function SaveIndicator({ saving, onRetry }: { saving: SaveState; onRetry: () => void }) {
   if (saving === "saving") return <span className="microlabel blink-soft text-amber">WRITING…</span>;
+  if (saving === "readonly") return <span className="microlabel text-muted">DEMO — LOCAL ONLY</span>;
   if (saving === "error") {
     return (
       <button
@@ -33,6 +34,7 @@ export default function Header() {
   const statuses = useDashboard((s) => s.statuses);
   const saving = useDashboard((s) => s.saving);
   const retrySave = useDashboard((s) => s.retrySave);
+  const readOnly = useDashboard((s) => s.readOnly);
   const now = useClock();
 
   const probed = data?.links.filter((l) => l.checkEnabled) ?? [];
@@ -45,8 +47,13 @@ export default function Header() {
       <div className="fx-ruler h-1.5 w-full border-b border-line" />
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5 pb-6 pt-6 sm:pt-8">
         <div className="min-w-0">
-          <div className="microlabel text-muted">
-            {data?.settings.subtitle ?? "self-hosted service registry"}
+          <div className="microlabel flex items-center gap-3 text-muted">
+            <span>{data?.settings.subtitle ?? "self-hosted service registry"}</span>
+            {readOnly && (
+              <span className="microlabel rounded border border-line px-1.5 py-0.5 text-faint">
+                DEMO — CHANGES RESET ON RELOAD
+              </span>
+            )}
           </div>
           <h1 className="mt-2 truncate font-mono text-2xl font-medium tracking-tight sm:text-3xl">
             <span className="text-faint">~/</span>

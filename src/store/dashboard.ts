@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { arrayMove } from "@dnd-kit/sortable";
-import { getData, putData } from "../lib/api";
+import { getData, getHealth, putData } from "../lib/api";
 import { slugify } from "../lib/utils";
 import type { DashboardData, LinkItem, LinkStatus } from "../types";
 
-export type SaveState = "idle" | "saving" | "saved" | "error";
+export type SaveState = "idle" | "saving" | "saved" | "error" | "readonly";
 
 export type ModalState =
   | { mode: "create"; category?: string }
@@ -14,6 +14,9 @@ export type ModalState =
 interface DashboardStore {
   data: DashboardData | null;
   loadError: string | null;
+  /** Public demo instance: edits apply locally for the session but are never sent to the
+   * server (which also rejects PUT /api/data regardless - this just avoids the round-trip). */
+  readOnly: boolean;
   statuses: Record<string, LinkStatus>;
   sweepAt: string | null;
   saving: SaveState;
@@ -89,12 +92,20 @@ export const useDashboard = create<DashboardStore>()((set, get) => {
       data: next,
       filterCategory: filter && next.categories.some((c) => c.id === filter) ? filter : null,
     });
+    // Demo mode: keep the edit responsive locally, but never round-trip to a server that
+    // would reject it anyway - the change just lives for this browser session and resets
+    // on reload (the seeded data file never actually changes).
+    if (get().readOnly) {
+      set({ saving: "readonly" });
+      return;
+    }
     scheduleFlush();
   };
 
   return {
     data: null,
     loadError: null,
+    readOnly: false,
     statuses: {},
     sweepAt: null,
     saving: "idle",
@@ -112,6 +123,14 @@ export const useDashboard = create<DashboardStore>()((set, get) => {
         set({ data: d });
       } catch (e) {
         set({ loadError: e instanceof Error ? e.message : String(e) });
+      }
+      // Best-effort: a health-check failure shouldn't block the dashboard from loading,
+      // it just means readOnly stays false (normal read/write mode).
+      try {
+        const health = await getHealth();
+        set({ readOnly: health.readOnly });
+      } catch {
+        /* health endpoint unreachable - assume normal read/write mode */
       }
     },
 

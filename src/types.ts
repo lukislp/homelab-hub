@@ -49,3 +49,10 @@ export interface StatusResponse {
   sweepAt: string | null;
   statuses: Record<string, LinkStatus>;
 }
+
+export interface HealthResponse {
+  ok: boolean;
+  version: string;
+  uptime: number;
+  readOnly: boolean;
+}

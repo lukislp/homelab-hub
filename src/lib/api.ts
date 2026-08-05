@@ -1,4 +1,4 @@
-import type { DashboardData, StatusResponse } from "../types";
+import type { DashboardData, HealthResponse, StatusResponse } from "../types";
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -16,6 +16,8 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export const getData = () => request<DashboardData>("/api/data");
+
+export const getHealth = () => request<HealthResponse>("/api/health");
 
 export const getStatus = () => request<StatusResponse>("/api/status");
 
