@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/lukislp/homelab-hub/compare/v1.0.1...v1.1.0) (2026-08-05)
+
+
+### Features
+
+* add a READ_ONLY mode for public demo deployments ([10a5098](https://github.com/lukislp/homelab-hub/commit/10a5098e60d8ad661c431af5cb198f60bdebbc0d))
+
 ## [1.0.1](https://github.com/lukislp/homelab-hub/compare/v1.0.0...v1.0.1) (2026-08-05)
 
 
