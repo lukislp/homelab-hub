@@ -12,6 +12,8 @@ A self-hosted link dashboard for your homelab with a **terminal·tech look**: al
 with public services in place of a real homelab. Changes apply locally in your browser but
 are never saved (reload resets it).
 
+![homelab-hub dashboard, live demo screenshot](docs/screenshot.png)
+
 ## Features
 
 - **Manage links in the UI** — create, edit, delete (two-step confirmation). Persisted as JSON on a PVC, writes are atomic.
