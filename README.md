@@ -1,5 +1,10 @@
 # homelab-hub
 
+[![CI/CD](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml)
+[![Release](https://img.shields.io/github/v/release/lukislp/homelab-hub)](https://github.com/lukislp/homelab-hub/releases)
+[![License: MIT](https://img.shields.io/github/license/lukislp/homelab-hub)](LICENSE)
+[![Node](https://img.shields.io/badge/Node-24-339933)](https://nodejs.org/)
+
 A self-hosted link dashboard for your homelab with a **terminal·tech look**: all your services at a glance, live status with latency, opens in a new tab on click. Runs as a **single container** on k3s behind **NGINX Gateway Fabric** (Gateway API / HTTPRoute).
 
 ## Features
