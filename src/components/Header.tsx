@@ -39,6 +39,9 @@ export default function Header() {
 
   const probed = data?.links.filter((l) => l.checkEnabled) ?? [];
   const online = probed.filter((l) => statuses[l.id]?.state === "online").length;
+  // Before the first /api/status response lands, "00/10 UP" would read as an outage -
+  // show a neutral placeholder for that sub-second window instead.
+  const statusesLoaded = Object.keys(statuses).length > 0;
   const time = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
   const date = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
 
@@ -68,7 +71,7 @@ export default function Header() {
           </div>
           <div className="text-right">
             <div className="font-mono text-lg leading-none tabular-nums">
-              <span className="text-phosphor">{pad2(online)}</span>
+              <span className="text-phosphor">{statusesLoaded ? pad2(online) : "--"}</span>
               <span className="text-faint">/{pad2(probed.length)}</span>
             </div>
             <div className="microlabel mt-2 text-faint">SERVICES UP</div>

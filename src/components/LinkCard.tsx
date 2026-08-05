@@ -50,9 +50,9 @@ export default function LinkCard({ link, index, status, categoryLabel, dragDisab
     >
       {/* entrance animation on an inner node — never on the dnd-transformed node */}
       <motion.div
-        initial={reduced ? false : { opacity: 0, y: 10 }}
+        initial={reduced ? false : { opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: "easeOut", delay: Math.min(index * 0.04, 0.5) }}
+        transition={{ duration: 0.2, ease: "easeOut", delay: Math.min(index * 0.02, 0.25) }}
         className="h-full"
       >
         <a
