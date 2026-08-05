@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/lukislp/homelab-hub/compare/v1.1.0...v1.1.1) (2026-08-05)
+
+
+### Bug Fixes
+
+* trigger a release for the public demo mode and README link ([3fba74d](https://github.com/lukislp/homelab-hub/commit/3fba74d3044b9e43595b93a678aa63e67929bf17))
+
 # [1.1.0](https://github.com/lukislp/homelab-hub/compare/v1.0.1...v1.1.0) (2026-08-05)
 
 
