@@ -46,6 +46,28 @@ jobs:
       - run: npm ci
       - run: npx tsc -b --noEmit
 
+  test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      # Build first so the SPA-fallback/static-serving tests exercise a real dist/ (same
+      # rationale as test-smoke above) instead of only the dist-missing 404 branch.
+      - run: npm run build
+      - run: npm run test:coverage
+      # Self-hosted coverage badge (no external service), same pattern as this portfolio's
+      # other repos: downloaded and committed by the semantic-release job below.
+      - run: node scripts/generate-coverage-badge.mjs coverage/coverage-summary.json coverage-badge.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-badge
+          path: coverage-badge.json
+          retention-days: 7
+
   test-security:
     runs-on: ubuntu-latest
     steps:
@@ -95,7 +117,7 @@ jobs:
   build:
     # No implicit stage-sequencing under GitHub's DAG model (unlike GitLab) - wait for every
     # test job explicitly.
-    needs: [test-smoke, test-typecheck, test-security, test-k8s-manifests, test-e2e]
+    needs: [test-smoke, test-typecheck, test-coverage, test-security, test-k8s-manifests, test-e2e]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -222,6 +244,10 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - uses: actions/download-artifact@v8
+        with:
+          name: coverage-badge
+      - run: mkdir -p .github/badges && mv coverage-badge.json .github/badges/coverage.json
       - id: semrel
         uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
         with:

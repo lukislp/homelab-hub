@@ -21,7 +21,10 @@
     "smoke": "bash scripts/smoke.sh",
     "shots": "node scripts/screenshot.mjs",
     "e2e": "node scripts/e2e.mjs",
-    "validate:k8s": "bash scripts/validate-k8s.sh"
+    "validate:k8s": "bash scripts/validate-k8s.sh",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -42,10 +45,12 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.4",
+    "@vitest/coverage-v8": "^4.1.10",
     "js-yaml": "^5.2.1",
     "playwright-core": "^1.61.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
-    "vite": "^8.1.5"
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
   }
 }
