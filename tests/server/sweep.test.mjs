@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import http from "node:http";
 import { sweep, sweepSoon, setData, statuses, stopSweep } from "../../server/app.mjs";
 
@@ -107,4 +107,79 @@ describe("sweep", () => {
 
     expect(statuses.get("x")?.state).toBe("online");
   }, 2000);
+
+  it("collapses sweep()/sweepSoon() calls made while a sweep is already in flight into one fast re-sweep", async () => {
+    let calls = 0;
+    const slow = await listen((_req, res) => {
+      calls += 1;
+      setTimeout(() => {
+        res.writeHead(200);
+        res.end();
+      }, 150);
+    });
+    servers.push(slow);
+    const { port } = slow.address();
+
+    setData(doc([{ id: "x", name: "X", url: `http://127.0.0.1:${port}/`, category: "c", icon: { type: "monogram" }, checkEnabled: true }]));
+
+    const inFlight = sweep(); // sweeping = true for ~150ms
+    await new Promise((r) => setTimeout(r, 20)); // let it actually start probing
+    sweep(); // hits the `if (sweeping) { resweepRequested = true; return; }` guard
+    sweepSoon(); // hits sweepSoon's matching guard
+    await inFlight;
+    expect(calls).toBe(1); // the collapsed re-sweep hasn't run yet - only the original sweep did
+
+    // resweepRequested caused the reschedule delay to be 250ms instead of SWEEP_INTERVAL_MS -
+    // wait past that for the collapsed re-sweep to actually fire and re-probe.
+    await new Promise((r) => setTimeout(r, 400));
+    expect(calls).toBeGreaterThanOrEqual(2);
+  }, 3000);
+
+  it("sweeps cleanly when no data has been loaded yet (data is null)", async () => {
+    setData(null);
+    await expect(sweep()).resolves.toBeUndefined();
+    expect(statuses.size).toBe(0);
+  });
+
+  it("sweepSoon cancels a previously scheduled timer instead of stacking a second one", async () => {
+    let calls = 0;
+    const online = await listen((_req, res) => {
+      calls += 1;
+      res.writeHead(200);
+      res.end();
+    });
+    servers.push(online);
+    const { port } = online.address();
+    setData(doc([{ id: "x", name: "X", url: `http://127.0.0.1:${port}/`, category: "c", icon: { type: "monogram" }, checkEnabled: true }]));
+
+    sweepSoon(); // schedules a timer
+    sweepSoon(); // sweepTimer is now truthy - exercises the clearTimeout(sweepTimer) branch
+    await new Promise((r) => setTimeout(r, 400));
+
+    expect(calls).toBe(1); // stacking calls didn't leak a second live timer
+  });
+
+  it("stopSweep() is a safe no-op when no timer is currently pending", () => {
+    stopSweep(); // afterEach already cleared any timer from a prior test - sweepTimer is null here
+    expect(() => stopSweep()).not.toThrow(); // calling it again is still a no-op, not an error
+  });
+
+  it("tolerates a timer object without .unref (e.g. non-Node runtimes) in both sweep() and sweepSoon()", async () => {
+    const realSetTimeout = global.setTimeout;
+    const withoutUnref = (fn, delay) => {
+      const real = realSetTimeout(fn, delay);
+      return new Proxy(real, { get: (target, prop) => (prop === "unref" ? undefined : target[prop]) });
+    };
+
+    setData(doc([]));
+
+    vi.spyOn(global, "setTimeout").mockImplementationOnce(withoutUnref);
+    await sweep(); // schedules its reschedule-timer via the unref-less proxy - covers sweep()'s branch
+
+    vi.spyOn(global, "setTimeout").mockImplementationOnce(withoutUnref);
+    sweepSoon(); // schedules via the unref-less proxy too - covers sweepSoon()'s branch
+    await new Promise((r) => setTimeout(r, 250));
+
+    vi.restoreAllMocks();
+  });
 });

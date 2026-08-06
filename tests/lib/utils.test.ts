@@ -1,5 +1,11 @@
-import { describe, it, expect } from "vitest";
-import { hostFromUrl, slugify, normalizeUrl, isValidHttpUrl, monogram, uid, pad2 } from "../../src/lib/utils";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { cn, hostFromUrl, slugify, normalizeUrl, isValidHttpUrl, monogram, uid, pad2 } from "../../src/lib/utils";
+
+describe("cn", () => {
+  it("joins truthy class values and drops falsy ones (thin clsx wrapper)", () => {
+    expect(cn("a", false, "b", undefined, null, "c")).toBe("a b c");
+  });
+});
 
 describe("hostFromUrl", () => {
   it("strips the scheme and keeps host + non-root path", () => {
@@ -88,11 +94,39 @@ describe("monogram", () => {
 });
 
 describe("uid", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("produces non-empty, unique ids across calls", () => {
     const a = uid();
     const b = uid();
     expect(a).not.toBe(b);
     expect(a.length).toBeGreaterThan(0);
+  });
+
+  it("falls back to a manual id when crypto.randomUUID isn't a function (insecure/plain-http context)", () => {
+    vi.stubGlobal("crypto", {
+      randomUUID: undefined,
+      getRandomValues: crypto.getRandomValues.bind(crypto),
+    });
+
+    const id = uid();
+
+    expect(id).toMatch(/^id-[0-9a-f]{20}$/);
+  });
+
+  it("falls back to a manual id when crypto.randomUUID throws (insecure context that still exposes the function)", () => {
+    vi.stubGlobal("crypto", {
+      randomUUID: () => {
+        throw new DOMException("insecure context", "SecurityError");
+      },
+      getRandomValues: crypto.getRandomValues.bind(crypto),
+    });
+
+    const id = uid();
+
+    expect(id).toMatch(/^id-[0-9a-f]{20}$/);
   });
 });
 

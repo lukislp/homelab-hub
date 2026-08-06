@@ -72,7 +72,9 @@ describe("GET /api/icon/:id", () => {
   });
 
   it("404s and caches the failure when the target has no favicon", async () => {
+    let hits = 0;
     const upstream = await listen((_req, res) => {
+      hits += 1;
       res.writeHead(404);
       res.end();
     });
@@ -88,6 +90,12 @@ describe("GET /api/icon/:id", () => {
     expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.error).toMatch(/no icon/);
+
+    // Second request should be served from the cached failure - upstream not hit again.
+    const hitsAfterFirst = hits;
+    const res2 = await fetch(`${base}/api/icon/icon-fail`);
+    expect(res2.status).toBe(404);
+    expect(hits).toBe(hitsAfterFirst);
 
     await new Promise((r) => upstream.close(r));
   });
