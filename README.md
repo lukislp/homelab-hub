@@ -4,6 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/lukislp/homelab-hub)](https://github.com/lukislp/homelab-hub/releases)
 [![License: MIT](https://img.shields.io/github/license/lukislp/homelab-hub)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-24-339933)](https://nodejs.org/)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/lukislp/homelab-hub/master/.github/badges/coverage.json)](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml)
 
 A self-hosted link dashboard for your homelab with a **terminal·tech look**: all your services at a glance, live status with latency, opens in a new tab on click. Runs as a **single container** on k3s behind **NGINX Gateway Fabric** (Gateway API / HTTPRoute).
 
@@ -129,11 +130,13 @@ The dashboard **deliberately has no authentication** — it's meant for internal
 ## Tests & scripts
 
 ```bash
-npm run build          # TypeScript check + production build
-npm run smoke          # API smoke test (endpoints, limits, traversal, probe sweep)
-npm run e2e            # headless browser test (create, filter, delete) — needs Chromium
-npm run shots          # screenshots with demo data                     — needs Chromium
-npm run validate:k8s   # manifest checks + kubeconform (incl. Gateway API schema)
+npm run build           # TypeScript check + production build
+npm test                # unit tests (vitest): server logic, lib/utils, dashboard store
+npm run test:coverage   # same, with a coverage report (coverage/index.html)
+npm run smoke           # API smoke test (endpoints, limits, traversal, probe sweep)
+npm run e2e             # headless browser test (create, filter, delete) — needs Chromium
+npm run shots           # screenshots with demo data                     — needs Chromium
+npm run validate:k8s    # manifest checks + kubeconform (incl. Gateway API schema)
 ```
 
 `e2e`/`shots` look for Chromium at `/opt/pw-browsers` or via `PW_CHROMIUM=/path/to/chrome`.
@@ -153,9 +156,12 @@ npm run validate:k8s   # manifest checks + kubeconform (incl. Gateway API schema
 
 ```
 homelab-hub/
-├── server/server.mjs      # complete backend server (zero deps)
+├── server/
+│   ├── app.mjs            # backend logic (validation, probing, HTTP handlers) — zero deps
+│   └── server.mjs         # thin bootstrap: TLS/HTTP listener + signal handling
 ├── src/                   # React frontend (Vite, Tailwind v4)
-├── scripts/               # smoke / e2e / screenshots / k8s validation
+├── tests/                 # vitest unit tests for server/app.mjs, src/lib, src/store
+├── scripts/               # smoke / e2e / screenshots / k8s validation / coverage badge
 ├── k8s/                   # namespace, PVC, deployment, service, HTTPRoute, kustomization
 ├── Dockerfile             # multi-stage build (node:22-alpine)
 └── data/                  # local only (dev) — in-cluster, /data lives on the PVC
