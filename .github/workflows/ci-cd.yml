@@ -29,7 +29,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
+      # Self-heal a stale/corrupted actions/setup-node npm cache (e.g. left behind by a job
+      # that got killed mid-install during a GitHub Actions infra incident) without paying the
+      # cost of a clean cache on every normal run - only retries with `npm cache clean --force`
+      # if the first `npm ci` actually fails.
+      - run: npm ci || (npm cache clean --force && npm ci)
       # Build first so scripts/smoke.sh also exercises static/SPA-serving checks, not just
       # the API-only subset it falls back to when dist/ is missing.
       - run: npm run build
@@ -43,7 +47,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
+      # Self-heal a stale/corrupted actions/setup-node npm cache (e.g. left behind by a job
+      # that got killed mid-install during a GitHub Actions infra incident) without paying the
+      # cost of a clean cache on every normal run - only retries with `npm cache clean --force`
+      # if the first `npm ci` actually fails.
+      - run: npm ci || (npm cache clean --force && npm ci)
       - run: npx tsc -b --noEmit
 
   test-coverage:
@@ -54,7 +62,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
+      # Self-heal a stale/corrupted actions/setup-node npm cache (e.g. left behind by a job
+      # that got killed mid-install during a GitHub Actions infra incident) without paying the
+      # cost of a clean cache on every normal run - only retries with `npm cache clean --force`
+      # if the first `npm ci` actually fails.
+      - run: npm ci || (npm cache clean --force && npm ci)
       # Build first so the SPA-fallback/static-serving tests exercise a real dist/ (same
       # rationale as test-smoke above) instead of only the dist-missing 404 branch.
       - run: npm run build
@@ -76,7 +88,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
+      # Self-heal a stale/corrupted actions/setup-node npm cache (e.g. left behind by a job
+      # that got killed mid-install during a GitHub Actions infra incident) without paying the
+      # cost of a clean cache on every normal run - only retries with `npm cache clean --force`
+      # if the first `npm ci` actually fails.
+      - run: npm ci || (npm cache clean --force && npm ci)
       - run: npm audit --audit-level=high
 
   test-k8s-manifests:
@@ -87,7 +103,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
+      # Self-heal a stale/corrupted actions/setup-node npm cache (e.g. left behind by a job
+      # that got killed mid-install during a GitHub Actions infra incident) without paying the
+      # cost of a clean cache on every normal run - only retries with `npm cache clean --force`
+      # if the first `npm ci` actually fails.
+      - run: npm ci || (npm cache clean --force && npm ci)
       - run: npm run validate:k8s
 
   test-e2e:
@@ -98,7 +118,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
+      # Self-heal a stale/corrupted actions/setup-node npm cache (e.g. left behind by a job
+      # that got killed mid-install during a GitHub Actions infra incident) without paying the
+      # cost of a clean cache on every normal run - only retries with `npm cache clean --force`
+      # if the first `npm ci` actually fails.
+      - run: npm ci || (npm cache clean --force && npm ci)
       - run: npm run build
       # playwright-core has no bundled browser - install one and point scripts/e2e.mjs at it
       # via PW_CHROMIUM (it also checks /opt/pw-browsers, which this doesn't use here).
@@ -125,7 +149,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
+      # Self-heal a stale/corrupted actions/setup-node npm cache (e.g. left behind by a job
+      # that got killed mid-install during a GitHub Actions infra incident) without paying the
+      # cost of a clean cache on every normal run - only retries with `npm cache clean --force`
+      # if the first `npm ci` actually fails.
+      - run: npm ci || (npm cache clean --force && npm ci)
       - run: npm run build
 
   # ---------------------------------------------------------------------
