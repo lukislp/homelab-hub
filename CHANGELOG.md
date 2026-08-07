@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/lukislp/homelab-hub/compare/v1.1.3...v1.2.0) (2026-08-07)
+
+
+### Bug Fixes
+
+* close remaining gaps to reach 100% coverage on the scoped test surface ([52b2f05](https://github.com/lukislp/homelab-hub/commit/52b2f05dd842d2d76176614e66ae2ffb60c7ef23))
+* re-trigger CI after the previous push's webhook was dropped during a GitHub Actions incident ([3971b68](https://github.com/lukislp/homelab-hub/commit/3971b6852a32cc8d4d9e400b2a134f3127a6cc7e))
+* self-heal a stale npm cache instead of failing the build outright ([c8789d6](https://github.com/lukislp/homelab-hub/commit/c8789d6012a3f6a49f314859f2203249ceea7735))
+
+
+### Features
+
+* add vitest unit tests and self-hosted coverage badge ([a5c25fb](https://github.com/lukislp/homelab-hub/commit/a5c25fb3c1a41bb1a18a8a97f05ae8a6376bd20d))
+
 ## [1.1.3](https://github.com/lukislp/homelab-hub/compare/v1.1.2...v1.1.3) (2026-08-05)
 
 
