@@ -13,7 +13,7 @@ ENV NODE_ENV=production \
     DATA_DIR=/data
 WORKDIR /app
 COPY --from=build /app/dist ./dist
-COPY server/server.mjs ./server/server.mjs
+COPY server/ ./server/
 # /data is overlaid by the PVC in-cluster; chown here is only for local `docker run`
 RUN mkdir -p /data && chown node:node /data
 USER node
