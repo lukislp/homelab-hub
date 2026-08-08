@@ -1,3 +1,11 @@
+## [1.2.1](https://github.com/lukislp/homelab-hub/compare/v1.2.0...v1.2.1) (2026-08-08)
+
+
+### Bug Fixes
+
+* bump nanoid to close a high-severity npm audit finding ([974f44e](https://github.com/lukislp/homelab-hub/commit/974f44e8887058430e061874c67a64ad37c0b257)), closes [hi#severity](https://github.com/hi/issues/severity)
+* copy the whole server/ directory into the runtime image ([45d2c79](https://github.com/lukislp/homelab-hub/commit/45d2c79d994d842a514b5ffe12994af8470cd557))
+
 # [1.2.0](https://github.com/lukislp/homelab-hub/compare/v1.1.3...v1.2.0) (2026-08-07)
 
 
