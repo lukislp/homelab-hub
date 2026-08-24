@@ -1,0 +1,14 @@
+# Selects the "newest" tag by SemVer - the CI pushes plain SemVer tags without a "v" prefix
+# (verified: ghcr.io/lukislp/homelab-hub:1.2.2), which Flux's standard SemVer policy parses
+# directly.
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: homelab-hub
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: homelab-hub
+  policy:
+    semver:
+      range: ">=0.0.0"

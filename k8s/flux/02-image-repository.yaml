@@ -1,0 +1,10 @@
+# Scans GHCR for new tags of the hub image (.github/workflows: docker build pushes plain
+# SemVer tags via semantic-release's next_version). Public package - no secretRef needed.
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: homelab-hub
+  namespace: flux-system
+spec:
+  image: ghcr.io/lukislp/homelab-hub
+  interval: 5m

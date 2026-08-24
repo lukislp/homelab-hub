@@ -1,0 +1,15 @@
+# Deliberately ONLY these three files - NOT the rest of k8s/. Mirrors every sibling app's own
+# k8s/flux-deploy/kustomization.yaml scoping (e.g. homelab-autodoc, studylife-ai):
+# kustomize-controller's least-privilege ClusterRole (homelab-infra repo's
+# flux/01-reconciler-rbac.yaml) only grants permissions on Deployments/Services/
+# PersistentVolumeClaims/Certificates - NOT Namespaces, NetworkPolicies, or the Gateway API
+# resource kinds, which this repo's k8s/ also has (namespace.yaml, network-policies.yaml,
+# httproute.yaml). Those stay bootstrap-only, applied once by hand; Flux continuously
+# reconciles exactly this subset via k8s/flux/ (this repo owns its own Flux wiring, applied
+# once by hand).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../pvc.yaml
+  - ../deployment.yaml
+  - ../service.yaml
