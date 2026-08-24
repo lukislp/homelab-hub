@@ -6,6 +6,7 @@ resources:
   - deployment.yaml # includes the homelab-hub-backend-tls Certificate
   - service.yaml
   - httproute.yaml # includes BackendTLSPolicy + RateLimitPolicy
+  - network-policies.yaml
 # The image tag is pinned in deployment.yaml with imagePullPolicy: IfNotPresent.
 # After pushing a new tag, update it there and run
 # "kubectl -n homelab-hub rollout restart deployment/homelab-hub".
