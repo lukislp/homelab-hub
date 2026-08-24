@@ -33,6 +33,11 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: homelab-hub
+      annotations:
+        # Opt-in to homelab-infra's nightly Velero PVC backup (cluster/10-velero-values.yaml
+        # there): /data holds the user-created link collection - the one thing a redeploy
+        # cannot reproduce.
+        backup.velero.io/backup-volumes: data
     spec:
       automountServiceAccountToken: false
       securityContext:
