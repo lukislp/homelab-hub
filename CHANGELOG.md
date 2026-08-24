@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/lukislp/homelab-hub/compare/v1.2.1...v1.2.2) (2026-08-24)
+
+
+### Bug Fixes
+
+* **k8s:** real cluster values, GHCR-pinned image, cpu limit, NetworkPolicies ([484825b](https://github.com/lukislp/homelab-hub/commit/484825b964de2fd5b5f90ff04fef65cc8a51f799))
+
 ## [1.2.1](https://github.com/lukislp/homelab-hub/compare/v1.2.0...v1.2.1) (2026-08-08)
 
 
