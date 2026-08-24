@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/lukislp/homelab-hub/compare/v1.3.1...v1.3.2) (2026-08-24)
+
+
+### Bug Fixes
+
+* **docker:** exclude .github from the build context ([dc02eea](https://github.com/lukislp/homelab-hub/commit/dc02eea3d82285aacb3b8df75c803ad5fa18846e))
+
 ## [1.3.1](https://github.com/lukislp/homelab-hub/compare/v1.3.0...v1.3.1) (2026-08-24)
 
 
