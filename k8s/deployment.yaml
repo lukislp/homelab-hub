@@ -47,7 +47,9 @@ spec:
         - name: hub
           # Pin to a specific tag, never ":latest" — with imagePullPolicy: IfNotPresent,
           # a ":latest" tag that isn't already on the node silently fails to pull.
-          image: ghcr.io/lukislp/homelab-hub:1.2.1
+          # The marker comment lets Flux's image automation commit new SemVer tags here
+          # (k8s/flux/04-image-update-automation.yaml) - do not remove it.
+          image: ghcr.io/lukislp/homelab-hub:1.2.1 # {"$imagepolicy": "flux-system:homelab-hub"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: https

@@ -1,12 +1,12 @@
+# The bootstrap-only resources - everything Flux's shared reconciler RBAC doesn't cover, so
+# it has to be applied by hand once. Deliberately does NOT include pvc/deployment/service
+# anymore: those are Flux-managed now (k8s/flux/ wires this repo in, k8s/flux-deploy/ applies
+# exactly that subset) - re-applying them here too would just be a second, redundant owner of
+# the same objects. New image tags land via Flux image automation (marker in deployment.yaml),
+# no manual bump or rollout restart needed anymore.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
-  - pvc.yaml
-  - deployment.yaml # includes the homelab-hub-backend-tls Certificate
-  - service.yaml
   - httproute.yaml # includes BackendTLSPolicy + RateLimitPolicy
   - network-policies.yaml
-# The image tag is pinned in deployment.yaml with imagePullPolicy: IfNotPresent.
-# After pushing a new tag, update it there and run
-# "kubectl -n homelab-hub rollout restart deployment/homelab-hub".
