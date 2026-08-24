@@ -10,3 +10,4 @@ scripts
 .gitignore
 .dockerignore
 Dockerfile
+.github
