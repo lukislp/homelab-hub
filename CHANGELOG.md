@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/lukislp/homelab-hub/compare/v1.3.0...v1.3.1) (2026-08-24)
+
+
+### Performance Improvements
+
+* **ci:** native per-arch docker builds instead of QEMU emulation ([dd39996](https://github.com/lukislp/homelab-hub/commit/dd39996ad934713f98e844afa8f701046351710a))
+
 # [1.3.0](https://github.com/lukislp/homelab-hub/compare/v1.2.2...v1.3.0) (2026-08-24)
 
 
