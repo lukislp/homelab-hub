@@ -1,3 +1,16 @@
+# [1.3.0](https://github.com/lukislp/homelab-hub/compare/v1.2.2...v1.3.0) (2026-08-24)
+
+
+### Bug Fixes
+
+* **k8s:** opt the data volume into the nightly Velero backup ([bc240d4](https://github.com/lukislp/homelab-hub/commit/bc240d4dd656316462b61d22acf3e05529666576))
+* **scripts:** teach the kustomization sync check the bootstrap/flux split ([87c144b](https://github.com/lukislp/homelab-hub/commit/87c144b5f00f3e86ff279a8513dd1ec9b09b2503))
+
+
+### Features
+
+* **k8s:** Flux onboarding - GitOps deploy + image automation ([bab9271](https://github.com/lukislp/homelab-hub/commit/bab92711cba7c6ff5771dc839145e46839011983))
+
 ## [1.2.2](https://github.com/lukislp/homelab-hub/compare/v1.2.1...v1.2.2) (2026-08-24)
 
 
