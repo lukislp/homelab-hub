@@ -84,12 +84,23 @@ route.spec?.hostnames?.length ? ok("httproute hostname present") : fail("httprou
 route.spec?.rules?.[0]?.backendRefs?.[0]?.name === svc.metadata?.name ? ok("httproute -> service backendRef") : fail("httproute backendRef must point to the service");
 route.spec?.rules?.[0]?.backendRefs?.[0]?.port === 80 ? ok("httproute backend port 80") : fail("httproute backend port must be 80");
 
-// Kustomization
-const res = kust.resources ?? [];
+// Kustomization ownership split: the bootstrap list (k8s/kustomization.yaml) and the
+// Flux-managed subset (k8s/flux-deploy/kustomization.yaml, resources like "../pvc.yaml")
+// must together cover every top-level k8s/*.yaml exactly once - a file in both would mean
+// two owners fighting over the same objects, a file in neither would silently never reach
+// the cluster.
+const bootstrapRes = kust.resources ?? [];
+const fluxDeploy = loadAll(
+  fs.readFileSync(path.join(K8S, "flux-deploy", "kustomization.yaml"), "utf8")
+).filter(Boolean)[0];
+const fluxRes = (fluxDeploy?.resources ?? []).map((f) => f.replace(/^\.\.\//, ""));
+const owned = [...bootstrapRes, ...fluxRes];
 const files = fs.readdirSync(K8S).filter((f) => f.endsWith(".yaml") && f !== "kustomization.yaml");
-files.every((f) => res.includes(f)) && res.every((f) => files.includes(f))
-  ? ok("kustomization resources complete")
-  : fail("kustomization resources out of sync with k8s/*.yaml");
+files.every((f) => owned.includes(f)) &&
+owned.every((f) => files.includes(f)) &&
+new Set(owned).size === owned.length
+  ? ok("bootstrap + flux-deploy kustomizations cover k8s/*.yaml exactly once")
+  : fail("kustomization resources out of sync with k8s/*.yaml (bootstrap + flux-deploy split)");
 // No kustomize `images:` transformer is used by design (see kustomization.yaml's own
 // comment) - the image tag is pinned directly in deployment.yaml, already checked above.
 
