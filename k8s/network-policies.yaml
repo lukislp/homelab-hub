@@ -1,0 +1,26 @@
+# homelab-hub namespace: same default-deny ingress strategy as every sibling namespace.
+# The hub only ever receives traffic from the Gateway's data plane (backend TLS on 8080);
+# nothing else talks to it. Egress deliberately stays open (its health probes fetch the
+# dashboards' own URLs).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: homelab-hub
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-nginx-gateway-to-hub
+  namespace: homelab-hub
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: homelab-hub } }
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: nginx-gateway } }
+      ports:
+        - { protocol: TCP, port: 8080 }

@@ -2,9 +2,8 @@
 # TLS verification on the Gateway -> Pod hop (server.mjs terminates TLS natively,
 # see deployment.yaml).
 #
-# Replace the placeholders before applying:
-#   - spec.parentRefs: name/namespace of your Gateway object (`kubectl get gateway -A`)
-#   - spec.hostnames: the hostname(s) you want to expose this on
+# Real values for the real cluster (same convention as every sibling repo): the shared
+# studylife-gateway carries this app's two listeners and their TLS secret.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -12,10 +11,11 @@ metadata:
   namespace: homelab-hub
 spec:
   parentRefs:
-    - name: my-gateway
+    - name: studylife-gateway
       namespace: nginx-gateway
   hostnames:
-    - hub.example.com
+    - linkdashboard.heim.lan
+    - linkdashboard.lukas2311-homelab.com
   rules:
     - backendRefs:
         - name: homelab-hub
