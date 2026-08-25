@@ -6,8 +6,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  # k3s ships the local-path provisioner by default.
-  storageClassName: local-path
+  # Longhorn (cross-node-replicated, homelab-infra/cluster/11-longhorn-values.yaml) instead
+  # of local-path - a node dying no longer means restoring from last night's Velero backup,
+  # links.json survives on the other node's replica.
+  storageClassName: longhorn
   resources:
     requests:
       storage: 100Mi
