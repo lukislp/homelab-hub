@@ -74,7 +74,7 @@ Object.entries(svc.spec?.selector ?? {}).every(([k, v]) => tplLabels[k] === v)
   : fail("service selector mismatch");
 
 // PVC
-pvc.spec?.storageClassName === "local-path" ? ok("pvc storageClassName local-path") : fail("pvc storageClassName must be local-path");
+pvc.spec?.storageClassName === "longhorn" ? ok("pvc storageClassName longhorn") : fail("pvc storageClassName must be longhorn");
 (pvc.spec?.accessModes ?? []).includes("ReadWriteOnce") ? ok("pvc RWO") : fail("pvc accessModes must include ReadWriteOnce");
 
 // HTTPRoute

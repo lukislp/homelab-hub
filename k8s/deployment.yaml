@@ -23,7 +23,7 @@ metadata:
 spec:
   replicas: 1
   # Recreate instead of RollingUpdate: there's a single writer for links.json,
-  # and the RWO volume (local-path) is bound to one node anyway.
+  # and the RWO volume can only be attached to one pod at a time anyway.
   strategy:
     type: Recreate
   selector:
@@ -44,7 +44,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
-        # fsGroup makes the local-path volume writable for uid 1000
+        # fsGroup makes the PVC mount writable for uid 1000
         fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
