@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/lukislp/homelab-hub/compare/v1.3.2...v1.4.0) (2026-08-25)
+
+
+### Bug Fixes
+
+* update CI validation and docs for the Longhorn storageClassName ([40be347](https://github.com/lukislp/homelab-hub/commit/40be3475a3f6fb6bbf7e8aa2979485aced44477b)), closes [#7](https://github.com/lukislp/homelab-hub/issues/7)
+
+
+### Features
+
+* move data volume to Longhorn for cross-node replication ([2f30d87](https://github.com/lukislp/homelab-hub/commit/2f30d8701b7668dd0dc009d306c2206762fc96ef))
+
 ## [1.3.2](https://github.com/lukislp/homelab-hub/compare/v1.3.1...v1.3.2) (2026-08-24)
 
 
