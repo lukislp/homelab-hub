@@ -34,7 +34,7 @@ Browser ──> NGINX Gateway (HTTPRoute) ──> Service :80 ──> Pod :8080
                                                       ├── /api/status    probe cache (sweep every 15s)
                                                       ├── /api/icon/:id  favicon proxy with cache
                                                       └── /api/health    k8s probes
-                                                      /data/links.json   (PVC, local-path)
+                                                      /data/links.json   (PVC, longhorn)
 ```
 
 The server has **zero runtime dependencies** (Node builtins only). Frontend: Vite + React 19 + TypeScript + Tailwind v4 + motion + dnd-kit + zustand.
@@ -146,7 +146,7 @@ npm run validate:k8s    # manifest checks + kubeconform (incl. Gateway API schem
 | Symptom | Cause / fix |
 | --- | --- |
 | Route not responding, `Accepted: False / NotAllowedByListeners` | Gateway listener doesn't allow other namespaces → `allowedRoutes.namespaces.from: All` (see above) |
-| Pod stuck in `Pending` | Normal for local-path (`WaitForFirstConsumer`) until scheduling; otherwise `kubectl describe pvc -n homelab-hub` |
+| Pod stuck in `Pending` | Longhorn binds `Immediate` (unlike local-path's `WaitForFirstConsumer`), so this means a real problem - `kubectl describe pvc -n homelab-hub` |
 | `ErrImagePull` / `ImagePullBackOff` | Image not present on the node (Option B: import on every node) or tag mismatch with `kustomization.yaml` |
 | Service shows `OFFLINE` but is reachable | Click URL not resolvable/reachable from inside the cluster → set `STATUS URL` (ADVANCED) to an internal address |
 | Favicon missing | Service doesn't serve `/favicon.ico` → automatic fallback to monogram; alternatively pick an icon set |
