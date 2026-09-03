@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/lukislp/homelab-hub/compare/v1.4.0...v1.4.1) (2026-09-03)
+
+
+### Bug Fixes
+
+* **ci:** add Dependabot for github-actions, npm, docker ([22fbbbd](https://github.com/lukislp/homelab-hub/commit/22fbbbdc43e9cd24e21942bafb68c03e2f0491db))
+
 # [1.4.0](https://github.com/lukislp/homelab-hub/compare/v1.3.2...v1.4.0) (2026-08-25)
 
 
