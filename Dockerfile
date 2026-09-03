@@ -1,5 +1,5 @@
 # ---- build stage -----------------------------------------------------------
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # ---- runtime stage ---------------------------------------------------------
-FROM node:24-alpine
+FROM node:26-alpine
 ENV NODE_ENV=production \
     PORT=8080 \
     DATA_DIR=/data
