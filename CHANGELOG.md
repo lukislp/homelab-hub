@@ -1,3 +1,10 @@
+## [1.4.5](https://github.com/lukislp/homelab-hub/compare/v1.4.4...v1.4.5) (2026-09-04)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/node from 26.4.0 to 26.4.1 in the dev group ([0ed4d7d](https://github.com/lukislp/homelab-hub/commit/0ed4d7d834921eebe59090ced6d476501f2e2f14))
+
 ## [1.4.4](https://github.com/lukislp/homelab-hub/compare/v1.4.3...v1.4.4) (2026-09-04)
 
 
