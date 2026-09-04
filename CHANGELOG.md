@@ -1,3 +1,10 @@
+## [1.4.6](https://github.com/lukislp/homelab-hub/compare/v1.4.5...v1.4.6) (2026-09-04)
+
+
+### Bug Fixes
+
+* **deps:** bump lucide-react from 1.38.0 to 1.39.0 ([b920947](https://github.com/lukislp/homelab-hub/commit/b920947d78864e3f5b4e491108a6bf400a514d1b))
+
 ## [1.4.5](https://github.com/lukislp/homelab-hub/compare/v1.4.4...v1.4.5) (2026-09-04)
 
 
