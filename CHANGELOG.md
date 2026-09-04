@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/lukislp/homelab-hub/compare/v1.4.2...v1.4.3) (2026-09-04)
+
+
+### Bug Fixes
+
+* **deps:** bump motion from 12.42.2 to 13.1.1 ([e95d38f](https://github.com/lukislp/homelab-hub/commit/e95d38ff21e6f51e35e44c2c684273bfc4cb8246))
+
 ## [1.4.2](https://github.com/lukislp/homelab-hub/compare/v1.4.1...v1.4.2) (2026-09-04)
 
 
