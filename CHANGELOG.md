@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/lukislp/homelab-hub/compare/v1.4.3...v1.4.4) (2026-09-04)
+
+
+### Bug Fixes
+
+* **ci:** ignore base image major bumps in Dependabot ([8f6e6ef](https://github.com/lukislp/homelab-hub/commit/8f6e6ef0bbba5af1301a5b74249c9535629768f0))
+
 ## [1.4.3](https://github.com/lukislp/homelab-hub/compare/v1.4.2...v1.4.3) (2026-09-04)
 
 
