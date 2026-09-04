@@ -1,3 +1,15 @@
+## [1.4.2](https://github.com/lukislp/homelab-hub/compare/v1.4.1...v1.4.2) (2026-09-04)
+
+
+### Bug Fixes
+
+* **ci:** bump aquasecurity/trivy-action ([144cc73](https://github.com/lukislp/homelab-hub/commit/144cc73bd9e36e3aedf71c4aa848c920dd6a938a))
+* **ci:** bump docker/setup-buildx-action from 4.2.0 to 4.3.0 ([cfcd209](https://github.com/lukislp/homelab-hub/commit/cfcd209ea4862481c1dbfb70f9d26d04b137e844))
+* **deps:** bump lucide-react from 1.26.0 to 1.38.0 ([fe2d492](https://github.com/lukislp/homelab-hub/commit/fe2d49253e962c6d0a24f2824e2ea09f29d05621))
+* **deps:** bump the dev group with 10 updates ([62cc981](https://github.com/lukislp/homelab-hub/commit/62cc9811171501100eab9e7686f7da9b56fa8e80))
+* **deps:** bump zustand from 5.0.14 to 5.0.15 ([f378dd7](https://github.com/lukislp/homelab-hub/commit/f378dd795d083007ea051e76930975f3534eddf4))
+* **deps:** sync lockfile after batch merge ([ee8b482](https://github.com/lukislp/homelab-hub/commit/ee8b482adec8353bb50a2e78208ebf1d2d918fb1))
+
 ## [1.4.1](https://github.com/lukislp/homelab-hub/compare/v1.4.0...v1.4.1) (2026-09-03)
 
 
