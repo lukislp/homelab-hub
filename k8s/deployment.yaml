@@ -54,7 +54,7 @@ spec:
           # a ":latest" tag that isn't already on the node silently fails to pull.
           # The marker comment lets Flux's image automation commit new SemVer tags here
           # (k8s/flux/04-image-update-automation.yaml) - do not remove it.
-          image: ghcr.io/lukislp/homelab-hub:1.4.2 # {"$imagepolicy": "flux-system:homelab-hub"}
+          image: ghcr.io/lukislp/homelab-hub:1.4.4 # {"$imagepolicy": "flux-system:homelab-hub"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: https
