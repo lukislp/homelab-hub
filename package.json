@@ -33,24 +33,24 @@
     "@fontsource-variable/jetbrains-mono": "^5.2.0",
     "@fontsource-variable/space-grotesk": "^5.2.0",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.26.0",
+    "lucide-react": "^1.38.0",
     "motion": "^12.42.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^24.0.0",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
-    "@vitejs/plugin-react": "^6.0.4",
-    "@vitest/coverage-v8": "^4.1.10",
-    "js-yaml": "^5.2.1",
-    "playwright-core": "^1.61.0",
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/coverage-v8": "^4.1.11",
+    "js-yaml": "^5.4.1",
+    "playwright-core": "^1.62.1",
     "tailwindcss": "^4.3.3",
-    "typescript": "~6.0.2",
-    "vite": "^8.1.5",
+    "typescript": "~7.0.2",
+    "vite": "^8.2.2",
     "vitest": "^4.1.10"
   }
 }
