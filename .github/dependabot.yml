@@ -22,3 +22,8 @@ updates:
       interval: weekly
     commit-message:
       prefix: "fix(docker)"
+    # Base image major bumps (e.g. node 24 -> 26) are handled deliberately,
+    # not via Dependabot; patch updates keep flowing.
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
