@@ -1,3 +1,10 @@
+## [1.4.7](https://github.com/lukislp/homelab-hub/compare/v1.4.6...v1.4.7) (2026-09-11)
+
+
+### Bug Fixes
+
+* **ci:** push release commits as a deploy key so the default branch can be ruleset-protected ([4e75d29](https://github.com/lukislp/homelab-hub/commit/4e75d2921f88baaa1701e366c71b7066f4a861bc))
+
 ## [1.4.6](https://github.com/lukislp/homelab-hub/compare/v1.4.5...v1.4.6) (2026-09-04)
 
 
