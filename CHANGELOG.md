@@ -1,3 +1,10 @@
+## [1.4.8](https://github.com/lukislp/homelab-hub/compare/v1.4.7...v1.4.8) (2026-09-11)
+
+
+### Bug Fixes
+
+* resolve CodeQL findings ([#29](https://github.com/lukislp/homelab-hub/issues/29)) ([d26e68d](https://github.com/lukislp/homelab-hub/commit/d26e68d97a644ac4915297c305894ab023c9835c))
+
 ## [1.4.7](https://github.com/lukislp/homelab-hub/compare/v1.4.6...v1.4.7) (2026-09-11)
 
 
