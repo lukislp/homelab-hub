@@ -1,6 +1,6 @@
 # homelab-hub
 
-[![CI/CD](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/lukislp/homelab-hub/badge)](https://scorecard.dev/viewer/?uri=github.com/lukislp/homelab-hub) [![CodeQL](https://github.com/lukislp/homelab-hub/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/lukislp/homelab-hub/security/code-scanning)
 [![Release](https://img.shields.io/github/v/release/lukislp/homelab-hub)](https://github.com/lukislp/homelab-hub/releases)
 [![License: MIT](https://img.shields.io/github/license/lukislp/homelab-hub)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-24-339933)](https://nodejs.org/)
