@@ -53,6 +53,15 @@ export function isReadOnly() {
   return process.env.READ_ONLY === "true";
 }
 
+// Outbound TLS for probes and the favicon proxy: certificates are verified by default.
+// Homelab services with their own CA should have that CA trusted (NODE_EXTRA_CA_CERTS);
+// PROBE_INSECURE_TLS=true is the explicit, deliberate opt-out for self-signed certificates
+// that cannot be trusted that way - it only affects outbound checks, never the listener.
+// Read lazily for the same reason as isReadOnly() above.
+export function allowInsecureProbeTls() {
+  return process.env.PROBE_INSECURE_TLS === "true";
+}
+
 const log = (...args) => console.log("[hub]", ...args);
 const nowIso = () => new Date().toISOString();
 
@@ -215,7 +224,7 @@ export function probeOnce(rawUrl) {
     const req = mod.get(
       u,
       {
-        rejectUnauthorized: false, // homelab self-signed certs are fine for a reachability probe
+        rejectUnauthorized: !allowInsecureProbeTls(),
         headers: { "user-agent": `homelab-hub/${APP_VERSION}` },
         signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
       },
@@ -301,7 +310,7 @@ export function fetchFavicon(targetUrl, allowedHost, redirectsLeft) {
     const req = mod.get(
       u,
       {
-        rejectUnauthorized: false,
+        rejectUnauthorized: !allowInsecureProbeTls(),
         headers: { "user-agent": `homelab-hub/${APP_VERSION}`, accept: "image/*,*/*;q=0.5" },
         signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
       },

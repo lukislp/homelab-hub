@@ -24,8 +24,8 @@ jobs:
   test-smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -42,8 +42,8 @@ jobs:
   test-typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -57,8 +57,8 @@ jobs:
   test-coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -74,7 +74,7 @@ jobs:
       # Self-hosted coverage badge (no external service), same pattern as this portfolio's
       # other repos: downloaded and committed by the semantic-release job below.
       - run: node scripts/generate-coverage-badge.mjs coverage/coverage-summary.json coverage-badge.json
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage-badge
           path: coverage-badge.json
@@ -83,8 +83,8 @@ jobs:
   test-security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -98,8 +98,8 @@ jobs:
   test-k8s-manifests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -113,8 +113,8 @@ jobs:
   test-e2e:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -144,8 +144,8 @@ jobs:
     needs: [test-smoke, test-typecheck, test-coverage, test-security, test-k8s-manifests, test-e2e]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -177,9 +177,32 @@ jobs:
       next_version: ${{ steps.semrel.outputs.new_release_version }}
       published: ${{ steps.semrel.outputs.new_release_published }}
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      # Ruleset bypass for the release commit (2026-09-11 main-protection rollout): main is
+      # protected by a ruleset (pull request + green test stage) that the GitHub Actions app
+      # cannot be a bypass actor for on a personal repository, so semantic-release pushes over
+      # SSH as a write-enabled DEPLOY KEY instead, which can. No-op while the secret is unset -
+      # the push then goes through the GITHUB_TOKEN https remote exactly as before. Needed in
+      # get-version too: @semantic-release/git's verifyConditions runs `git push --dry-run`
+      # even in dry-run mode. Same mechanism as lukislp/studylife's ci-cd.yml.
+      - name: Push as the semantic-release deploy key (if configured)
+        env:
+          DEPLOY_KEY: ${{ secrets.SEMANTIC_RELEASE_DEPLOY_KEY }}
+        run: |
+          if [ -z "$DEPLOY_KEY" ]; then
+            echo "SEMANTIC_RELEASE_DEPLOY_KEY is not set - semantic-release pushes with GITHUB_TOKEN"
+            exit 0
+          fi
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/semantic_release
+          chmod 600 ~/.ssh/semantic_release
+          # github.com's published ed25519 host key, pinned instead of ssh-keyscan'd at runtime:
+          # https://docs.github.com/en/authentication/keychain/githubs-ssh-key-fingerprints
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" >> ~/.ssh/known_hosts
+          git remote set-url origin "git@github.com:${{ github.repository }}.git"
+          echo "GIT_SSH_COMMAND=ssh -i ~/.ssh/semantic_release -o IdentitiesOnly=yes" >> "$GITHUB_ENV"
       - id: semrel
         uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
         with:
@@ -222,7 +245,7 @@ jobs:
     env:
       NEXT_VERSION: ${{ needs.get-version.outputs.next_version }}
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
@@ -245,12 +268,20 @@ jobs:
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=app-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=app-${{ matrix.arch }}
+          # Supply chain (2026-09-11 hardening): BuildKit attaches a SLSA provenance attestation
+          # (which commit/workflow built this, from which base image) and an SPDX SBOM to every
+          # per-arch image. They travel as extra "unknown/unknown" platform entries inside the
+          # pushed index - GHCR shows them as such, containerd/k3s ignore them when pulling,
+          # Trivy resolves the real linux/amd64 entry. imagetools create below carries them into
+          # the multi-arch manifest unchanged.
+          provenance: mode=max
+          sbom: true
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: digests-${{ matrix.arch }}
           path: /tmp/digests/*
@@ -264,10 +295,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+      # OIDC token for Sigstore keyless signing (cosign sign below) - no key material anywhere.
+      id-token: write
     env:
       NEXT_VERSION: ${{ needs.get-version.outputs.next_version }}
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: /tmp/digests
           pattern: digests-*
@@ -287,6 +320,84 @@ jobs:
             $(printf "${{ env.IMAGE }}@sha256:%s " *)
       - name: Inspect the pushed manifest
         run: docker buildx imagetools inspect "${{ env.IMAGE }}:${{ env.NEXT_VERSION }}"
+      # Sigstore keyless signature on the multi-arch manifest DIGEST (2026-09-11 hardening), so
+      # every tag pointing at it (version, latest, sha-) is covered by one signature. The
+      # signing identity is this workflow's OIDC certificate (repo + workflow path + ref), the
+      # signature and the transparency-log entry live next to the image in GHCR. The verify
+      # step right after is the live proof for this run and the exact identity constraint Flux
+      # will use once its ImagePolicy verification is switched on (cluster phase).
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - name: Sign the multi-arch manifest (Sigstore keyless) and verify
+        env:
+          IDENTITY_REGEXP: '^https://github\.com/lukislp/homelab-hub/\.github/workflows/ci-cd\.yml@refs/heads/master$'
+        run: |
+          DIGEST="$(docker buildx imagetools inspect "${{ env.IMAGE }}:${{ env.NEXT_VERSION }}" --format '{{json .Manifest.Digest}}' | tr -d '"')"
+          cosign sign --yes "${{ env.IMAGE }}@${DIGEST}"
+          cosign verify \
+            --certificate-identity-regexp "$IDENTITY_REGEXP" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "${{ env.IMAGE }}@${DIGEST}" --output text >/dev/null
+          echo "signed and verified ${{ env.IMAGE }}@${DIGEST}" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  # Image tag bump (2026-09-12): the deployment manifests pin the image by version, and this
+  # job - no longer Flux's image-automation-controller - writes the released version into them
+  # once the image exists, pushing over the same deploy key semantic-release uses. Flux then only
+  # reads this repo (its GitRepository carries no write token any more) and applies whatever the
+  # default branch says.
+  deploy-bump:
+    needs: [get-version, docker-manifest-merge]
+    if: github.event_name == 'push' && needs.get-version.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: homelab-hub-release-chain
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      NEXT_VERSION: ${{ needs.get-version.outputs.next_version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
+          fetch-depth: 0
+      # Same deploy-key push as the release jobs - the default branch only takes direct pushes
+      # from that key, so this job cannot fall back to GITHUB_TOKEN.
+      - name: Push as the semantic-release deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.SEMANTIC_RELEASE_DEPLOY_KEY }}
+        run: |
+          if [ -z "$DEPLOY_KEY" ]; then
+            echo "::error::SEMANTIC_RELEASE_DEPLOY_KEY is not set - the image tag bump cannot be pushed"
+            exit 1
+          fi
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/semantic_release
+          chmod 600 ~/.ssh/semantic_release
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" >> ~/.ssh/known_hosts
+          git remote set-url origin git@github.com:lukislp/homelab-hub.git
+          echo "GIT_SSH_COMMAND=ssh -i ~/.ssh/semantic_release -o IdentitiesOnly=yes" >> "$GITHUB_ENV"
+      - name: Point the manifests at the released image and push
+        run: |
+          set -eu
+          for f in $(grep -rlE 'ghcr\.io/lukislp/(homelab-hub):' k8s --include='*.yaml' | grep -v '/flux/'); do
+            sed -i -E "s#(ghcr\.io/lukislp/(homelab-hub)):[0-9A-Za-z._-]+#\\1:${NEXT_VERSION}#g" "$f"
+          done
+          if git diff --quiet; then
+            echo "manifests already reference ${NEXT_VERSION}"
+            exit 0
+          fi
+          git diff --stat
+          git config user.name "homelab-hub-deploy"
+          git config user.email "deploy@studylife.local"
+          git commit -am "chore(deploy): image ${NEXT_VERSION} [skip ci]"
+          # The branch may have moved (an out-of-band push) between checkout and now - rebase, retry.
+          for attempt in 1 2 3; do
+            git push origin HEAD:master && exit 0
+            git fetch origin master
+            git rebase origin/master
+          done
+          echo "::error::could not push the image tag bump"
+          exit 1
 
   trivy-scan:
     needs: [get-version, docker-manifest-merge]
@@ -327,10 +438,33 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v8
+      # Ruleset bypass for the release commit (2026-09-11 main-protection rollout): main is
+      # protected by a ruleset (pull request + green test stage) that the GitHub Actions app
+      # cannot be a bypass actor for on a personal repository, so semantic-release pushes over
+      # SSH as a write-enabled DEPLOY KEY instead, which can. No-op while the secret is unset -
+      # the push then goes through the GITHUB_TOKEN https remote exactly as before. Needed in
+      # get-version too: @semantic-release/git's verifyConditions runs `git push --dry-run`
+      # even in dry-run mode. Same mechanism as lukislp/studylife's ci-cd.yml.
+      - name: Push as the semantic-release deploy key (if configured)
+        env:
+          DEPLOY_KEY: ${{ secrets.SEMANTIC_RELEASE_DEPLOY_KEY }}
+        run: |
+          if [ -z "$DEPLOY_KEY" ]; then
+            echo "SEMANTIC_RELEASE_DEPLOY_KEY is not set - semantic-release pushes with GITHUB_TOKEN"
+            exit 0
+          fi
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/semantic_release
+          chmod 600 ~/.ssh/semantic_release
+          # github.com's published ed25519 host key, pinned instead of ssh-keyscan'd at runtime:
+          # https://docs.github.com/en/authentication/keychain/githubs-ssh-key-fingerprints
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" >> ~/.ssh/known_hosts
+          git remote set-url origin "git@github.com:${{ github.repository }}.git"
+          echo "GIT_SSH_COMMAND=ssh -i ~/.ssh/semantic_release -o IdentitiesOnly=yes" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: coverage-badge
       - run: mkdir -p .github/badges && mv coverage-badge.json .github/badges/coverage.json

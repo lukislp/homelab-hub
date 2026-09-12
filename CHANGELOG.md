@@ -1,3 +1,31 @@
+## [1.4.10](https://github.com/lukislp/homelab-hub/compare/v1.4.9...v1.4.10) (2026-09-12)
+
+
+### Bug Fixes
+
+* **ci:** bump the deployment image tag from the pipeline instead of Flux ([#34](https://github.com/lukislp/homelab-hub/issues/34)) ([6abcc29](https://github.com/lukislp/homelab-hub/commit/6abcc29fb50873dada1bca5adfafc5079427fc3d))
+
+## [1.4.9](https://github.com/lukislp/homelab-hub/compare/v1.4.8...v1.4.9) (2026-09-11)
+
+
+### Bug Fixes
+
+* **ci:** read-only GITHUB_TOKEN in the Dependabot auto-merge workflow ([2f7bb32](https://github.com/lukislp/homelab-hub/commit/2f7bb32abc484f262211714257f4f06b74385c57))
+
+## [1.4.8](https://github.com/lukislp/homelab-hub/compare/v1.4.7...v1.4.8) (2026-09-11)
+
+
+### Bug Fixes
+
+* resolve CodeQL findings ([#29](https://github.com/lukislp/homelab-hub/issues/29)) ([d26e68d](https://github.com/lukislp/homelab-hub/commit/d26e68d97a644ac4915297c305894ab023c9835c))
+
+## [1.4.7](https://github.com/lukislp/homelab-hub/compare/v1.4.6...v1.4.7) (2026-09-11)
+
+
+### Bug Fixes
+
+* **ci:** push release commits as a deploy key so the default branch can be ruleset-protected ([4e75d29](https://github.com/lukislp/homelab-hub/commit/4e75d2921f88baaa1701e366c71b7066f4a861bc))
+
 ## [1.4.6](https://github.com/lukislp/homelab-hub/compare/v1.4.5...v1.4.6) (2026-09-04)
 
 

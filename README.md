@@ -1,6 +1,6 @@
 # homelab-hub
 
-[![CI/CD](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/lukislp/homelab-hub/actions/workflows/ci-cd.yml) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/lukislp/homelab-hub/badge)](https://scorecard.dev/viewer/?uri=github.com/lukislp/homelab-hub) [![CodeQL](https://github.com/lukislp/homelab-hub/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/lukislp/homelab-hub/security/code-scanning)
 [![Release](https://img.shields.io/github/v/release/lukislp/homelab-hub)](https://github.com/lukislp/homelab-hub/releases)
 [![License: MIT](https://img.shields.io/github/license/lukislp/homelab-hub)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-24-339933)](https://nodejs.org/)
@@ -127,6 +127,11 @@ If the file is missing, it's recreated with example data. If it's corrupt, it's 
 
 The dashboard **deliberately has no authentication** — it's meant for internal use on your homelab. Don't expose it to the internet; if you must, secure it at the Gateway (e.g. an auth filter/OAuth proxy in front of it). The container runs non-root with `readOnlyRootFilesystem`, dropped capabilities, and seccomp `RuntimeDefault`.
 
+Outgoing status probes and favicon fetches **verify TLS certificates**. For services behind
+your own homelab CA, make that CA trusted in the container (`NODE_EXTRA_CA_CERTS=/path/to/ca.crt`).
+As a last resort, `PROBE_INSECURE_TLS=true` turns the verification off — for outgoing probes
+only, never for the listener itself.
+
 ## Tests & scripts
 
 ```bash
@@ -149,6 +154,7 @@ npm run validate:k8s    # manifest checks + kubeconform (incl. Gateway API schem
 | Pod stuck in `Pending` | Longhorn binds `Immediate` (unlike local-path's `WaitForFirstConsumer`), so this means a real problem - `kubectl describe pvc -n homelab-hub` |
 | `ErrImagePull` / `ImagePullBackOff` | Image not present on the node (Option B: import on every node) or tag mismatch with `kustomization.yaml` |
 | Service shows `OFFLINE` but is reachable | Click URL not resolvable/reachable from inside the cluster → set `STATUS URL` (ADVANCED) to an internal address |
+| HTTPS service shows `OFFLINE` with a `*_CERT_*` / `UNABLE_TO_VERIFY_*` error | Probe can't verify the certificate → trust your homelab CA via `NODE_EXTRA_CA_CERTS`, or set `PROBE_INSECURE_TLS=true` |
 | Favicon missing | Service doesn't serve `/favicon.ico` → automatic fallback to monogram; alternatively pick an icon set |
 | `WRITE FAILED` in the header | PVC full or not writable → check `kubectl logs`, `fsGroup: 1000` must be set in the deployment |
 

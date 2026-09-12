@@ -54,7 +54,7 @@ spec:
           # a ":latest" tag that isn't already on the node silently fails to pull.
           # The marker comment lets Flux's image automation commit new SemVer tags here
           # (k8s/flux/04-image-update-automation.yaml) - do not remove it.
-          image: ghcr.io/lukislp/homelab-hub:1.4.6 # {"$imagepolicy": "flux-system:homelab-hub"}
+          image: ghcr.io/lukislp/homelab-hub:1.4.10 # set by the deploy-bump job (CI) on every release
           imagePullPolicy: IfNotPresent
           ports:
             - name: https
@@ -71,6 +71,11 @@ spec:
               value: /etc/homelab-hub-backend-tls/tls.key
             - name: HOMELAB_HUB_TLS_CERT
               value: /etc/homelab-hub-backend-tls/tls.crt
+            # Outbound probes verify TLS. The backend-tls secret carries the internal CA that also
+            # signs the Gateway listeners, so trusting it here keeps every *.heim.lan /
+            # *.lukas2311-homelab.com target verifiable without PROBE_INSECURE_TLS.
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/homelab-hub-backend-tls/ca.crt
           volumeMounts:
             - name: data
               mountPath: /data

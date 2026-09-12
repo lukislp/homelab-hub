@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import http from "node:http";
 import { EventEmitter } from "node:events";
-import { probeOnce } from "../../server/app.mjs";
+import { probeOnce, allowInsecureProbeTls } from "../../server/app.mjs";
 
 describe("probeOnce - branches only reachable via a mocked transport", () => {
   afterEach(() => vi.restoreAllMocks());
@@ -71,5 +71,33 @@ describe("probeOnce - https transport selection", () => {
 
     const result = await probeOnce(`https://127.0.0.1:${port}/`);
     expect(result.state).toBe("offline"); // nothing listening - connection refused
+  });
+});
+
+describe("allowInsecureProbeTls - the outbound TLS opt-out", () => {
+  afterEach(() => delete process.env.PROBE_INSECURE_TLS);
+
+  it("verifies certificates unless PROBE_INSECURE_TLS is exactly \"true\"", () => {
+    expect(allowInsecureProbeTls()).toBe(false);
+    process.env.PROBE_INSECURE_TLS = "yes";
+    expect(allowInsecureProbeTls()).toBe(false);
+  });
+
+  it("passes rejectUnauthorized: false to the transport once opted in", async () => {
+    process.env.PROBE_INSECURE_TLS = "true";
+    let seen;
+    vi.spyOn(http, "get").mockImplementation((_u, opts, cb) => {
+      seen = opts;
+      const fakeReq = new EventEmitter();
+      fakeReq.destroy = () => {};
+      const fakeRes = new EventEmitter();
+      fakeRes.statusCode = 200;
+      fakeRes.resume = () => {};
+      queueMicrotask(() => cb(fakeRes));
+      return fakeReq;
+    });
+    await probeOnce("http://example.test/");
+    expect(seen.rejectUnauthorized).toBe(false);
+    vi.restoreAllMocks();
   });
 });
