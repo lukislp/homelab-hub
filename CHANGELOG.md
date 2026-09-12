@@ -1,3 +1,10 @@
+## [1.4.13](https://github.com/lukislp/homelab-hub/compare/v1.4.12...v1.4.13) (2026-09-12)
+
+
+### Bug Fixes
+
+* **deps:** bump the dev group across 1 directory with 5 updates ([6b2a777](https://github.com/lukislp/homelab-hub/commit/6b2a777677216cf15fb56c2611ddc926dd37f476))
+
 ## [1.4.12](https://github.com/lukislp/homelab-hub/compare/v1.4.11...v1.4.12) (2026-09-12)
 
 
