@@ -1,3 +1,10 @@
+## [1.4.10](https://github.com/lukislp/homelab-hub/compare/v1.4.9...v1.4.10) (2026-09-12)
+
+
+### Bug Fixes
+
+* **ci:** bump the deployment image tag from the pipeline instead of Flux ([#34](https://github.com/lukislp/homelab-hub/issues/34)) ([6abcc29](https://github.com/lukislp/homelab-hub/commit/6abcc29fb50873dada1bca5adfafc5079427fc3d))
+
 ## [1.4.9](https://github.com/lukislp/homelab-hub/compare/v1.4.8...v1.4.9) (2026-09-11)
 
 
