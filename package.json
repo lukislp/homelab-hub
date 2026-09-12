@@ -11,7 +11,7 @@
     "url": "https://github.com/lukislp/homelab-hub.git"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "dev": "vite",
