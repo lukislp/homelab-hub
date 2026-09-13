@@ -1,3 +1,10 @@
+## [1.4.16](https://github.com/lukislp/homelab-hub/compare/v1.4.15...v1.4.16) (2026-09-13)
+
+
+### Bug Fixes
+
+* **k8s:** give probes a 5s timeout so load spikes stop killing pods ([#48](https://github.com/lukislp/homelab-hub/issues/48)) ([c4881f0](https://github.com/lukislp/homelab-hub/commit/c4881f07799fc85c4a275598e41ca24ecd54504e))
+
 ## [1.4.15](https://github.com/lukislp/homelab-hub/compare/v1.4.14...v1.4.15) (2026-09-13)
 
 
