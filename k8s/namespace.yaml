@@ -1,4 +1,21 @@
+# Dedicated namespace. Pod Security Standards: "restricted" is hard-enforced - the only
+# workload here (k8s/deployment.yaml) already runs as a fixed non-root uid/gid, drops all
+# capabilities, sets allowPrivilegeEscalation:false, has a read-only root filesystem and a
+# RuntimeDefault seccomp profile, so nothing needs the looser "baseline". Verified before
+# enforcing with "kubectl label --dry-run=server --overwrite ns homelab-hub
+# pod-security.kubernetes.io/enforce=restricted", which reported no violating pod (enforce
+# only gates NEW pods, so this cannot evict anything that is already running).
+# warn/audit are on "restricted" too, so a future workload needing a looser level surfaces
+# instead of silently weakening the namespace.
+#
+# NOT applied via Flux: kustomize-controller's least-privilege ClusterRole grants no permission
+# on the "namespaces" resource (see k8s/flux-deploy/kustomization.yaml) - bootstrap-only,
+# applied by hand (kubectl apply -f k8s/namespace.yaml).
 apiVersion: v1
 kind: Namespace
 metadata:
   name: homelab-hub
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
