@@ -1,3 +1,10 @@
+## [1.4.15](https://github.com/lukislp/homelab-hub/compare/v1.4.14...v1.4.15) (2026-09-13)
+
+
+### Bug Fixes
+
+* **k8s:** restrict namespace egress to DNS and link probes ([#47](https://github.com/lukislp/homelab-hub/issues/47)) ([266a1a0](https://github.com/lukislp/homelab-hub/commit/266a1a026dc76b706844796c88dc2fd668b99975))
+
 ## [1.4.14](https://github.com/lukislp/homelab-hub/compare/v1.4.13...v1.4.14) (2026-09-13)
 
 
