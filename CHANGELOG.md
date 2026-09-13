@@ -1,3 +1,10 @@
+## [1.4.14](https://github.com/lukislp/homelab-hub/compare/v1.4.13...v1.4.14) (2026-09-13)
+
+
+### Bug Fixes
+
+* **k8s:** enforce Pod Security Standards "restricted" on the homelab-hub namespace ([#46](https://github.com/lukislp/homelab-hub/issues/46)) ([c35b53c](https://github.com/lukislp/homelab-hub/commit/c35b53cee853c57a129f84689d54928bbcda3763))
+
 ## [1.4.13](https://github.com/lukislp/homelab-hub/compare/v1.4.12...v1.4.13) (2026-09-12)
 
 
