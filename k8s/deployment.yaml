@@ -82,6 +82,12 @@ spec:
             - name: backend-tls
               mountPath: /etc/homelab-hub-backend-tls
               readOnly: true
+          # Both probes set timeoutSeconds explicitly. The Kubernetes default of 1s is too
+          # tight for the arm64 Raspberry Pi nodes this runs on: the weakest node sits close
+          # to its memory limit, so an ordinary load spike (plus the TLS handshake this probe
+          # has to do) pushes /api/health past one second, the liveness probe fails
+          # failureThreshold times in a row and kubelet restarts a container that was only
+          # busy. A 5s budget tells a busy pod apart from a dead one.
           readinessProbe:
             httpGet:
               path: /api/health
@@ -89,6 +95,8 @@ spec:
               scheme: HTTPS
             initialDelaySeconds: 3
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /api/health
@@ -96,6 +104,7 @@ spec:
               scheme: HTTPS
             initialDelaySeconds: 10
             periodSeconds: 20
+            timeoutSeconds: 5
             failureThreshold: 3
           resources:
             requests:
