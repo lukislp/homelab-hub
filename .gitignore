@@ -14,4 +14,3 @@ coverage/
 .idea/
 *.local.yaml
 k8s/*.local.yaml
-CLAUDE.md
