@@ -1,3 +1,10 @@
+## [1.4.17](https://github.com/lukislp/homelab-hub/compare/v1.4.16...v1.4.17) (2026-09-16)
+
+
+### Bug Fixes
+
+* **smoke:** read API responses from a file instead of piping them into node ([#53](https://github.com/lukislp/homelab-hub/issues/53)) ([25bdbcb](https://github.com/lukislp/homelab-hub/commit/25bdbcb4716d77366f51732f0fc5bd85681f8999))
+
 ## [1.4.16](https://github.com/lukislp/homelab-hub/compare/v1.4.15...v1.4.16) (2026-09-13)
 
 
