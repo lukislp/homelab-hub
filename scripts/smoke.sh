@@ -35,17 +35,22 @@ code() { curl -s -o /dev/null -w '%{http_code}' "$@"; }
 [ "$(code "$BASE/api/health")" = "200" ] && pass "health 200" || fail "health"
 
 # 2. seeded data shape
-curl -s "$BASE/api/data" | node -e '
-let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
-  const j=JSON.parse(s);
-  if(j.version!==1||!Array.isArray(j.links)||j.links.length<1||!Array.isArray(j.categories))process.exit(1);
-});' && pass "data seeded + shape" || fail "data shape"
+# Responses are written to a file and handed to node as an argument rather than piped into its
+# stdin: piping a download straight into the interpreter reads as "download and execute" to
+# static analysis, and check 11 below already used the file form anyway.
+curl -s "$BASE/api/data" -o "$TMP_DATA/data.json"
+node -e '
+const fs=require("fs");
+const j=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+if(j.version!==1||!Array.isArray(j.links)||j.links.length<1||!Array.isArray(j.categories))process.exit(1);
+' "$TMP_DATA/data.json" && pass "data seeded + shape" || fail "data shape"
 
 # 3. PUT round trip + disk persistence
-curl -s "$BASE/api/data" | node -e '
-let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
-  const j=JSON.parse(s); j.settings.title="smoke-test"; process.stdout.write(JSON.stringify(j));
-});' > "$TMP_DATA/put.json"
+node -e '
+const fs=require("fs");
+const j=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+j.settings.title="smoke-test"; process.stdout.write(JSON.stringify(j));
+' "$TMP_DATA/data.json" > "$TMP_DATA/put.json"
 [ "$(code -X PUT -H 'content-type: application/json' --data-binary @"$TMP_DATA/put.json" "$BASE/api/data")" = "200" ] && pass "PUT valid 200" || fail "PUT valid"
 grep -q '"title": "smoke-test"' "$TMP_DATA/links.json" && pass "persisted to disk (atomic write)" || fail "disk persistence"
 
@@ -94,13 +99,14 @@ process.stdout.write(JSON.stringify(j));' "$TMP_DATA/put.json" "$BASE" > "$TMP_D
 [ "$(code -X PUT -H 'content-type: application/json' --data-binary @"$TMP_DATA/status.json" "$BASE/api/data")" = "200" ] || fail "PUT status dataset"
 STATUS_OK=""
 for _ in $(seq 1 40); do
-  curl -s "$BASE/api/status" | node -e '
-let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
-  const j=JSON.parse(s);
-  const self=j.statuses.self, dead=j.statuses.dead;
-  const ok = self && self.state==="online" && typeof self.latencyMs==="number" && dead && dead.state==="offline";
-  process.exit(ok?0:1);
-});' && { STATUS_OK=1; break; }
+  curl -s "$BASE/api/status" -o "$TMP_DATA/status.probe.json"
+  node -e '
+const fs=require("fs");
+const j=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+const self=j.statuses.self, dead=j.statuses.dead;
+const ok = self && self.state==="online" && typeof self.latencyMs==="number" && dead && dead.state==="offline";
+process.exit(ok?0:1);
+' "$TMP_DATA/status.probe.json" 2>/dev/null && { STATUS_OK=1; break; }
   sleep 0.5
 done
 [ -n "$STATUS_OK" ] && pass "sweep: self online + latency, dead offline" || { fail "status sweep"; curl -s "$BASE/api/status"; echo; }
