@@ -1,3 +1,10 @@
+## [1.4.19](https://github.com/lukislp/homelab-hub/compare/v1.4.18...v1.4.19) (2026-09-17)
+
+
+### Bug Fixes
+
+* **deps:** bump react-dom and @types/react-dom ([8009282](https://github.com/lukislp/homelab-hub/commit/80092829fbc0e29cad8bb2a858af57c249d4db28))
+
 ## [1.4.18](https://github.com/lukislp/homelab-hub/compare/v1.4.17...v1.4.18) (2026-09-17)
 
 
