@@ -15,6 +15,15 @@ updates:
     schedule:
       interval: daily
     groups:
+      # react and react-dom must stay on the exact same version (React 19 refuses to start
+      # otherwise), so they and their types always move together. Listed before "dev": the
+      # first matching group wins.
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
       dev:
         dependency-type: development
     commit-message:
