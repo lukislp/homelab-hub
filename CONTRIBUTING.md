@@ -26,7 +26,7 @@ deliberately small - but it is the same for every change, including the maintain
 - **Tests for new functionality.** New features and bug fixes come with tests under `tests/`
   (`tests/server/` for the Node backend, `tests/lib/` and `tests/store/` for the frontend). A PR
   that adds behaviour without a test is asked to add one. The coverage badge in the README is
-  regenerated from the merged coverage report on every release and is expected not to drop.
+  generated from the merged coverage report and committed by the lktec-bot App together with the image bump of each release; it is expected not to drop.
 - **Types.** `npx tsc -b --noEmit` runs as `test-typecheck`; the build itself (`npm run build`)
   type-checks too. Do not silence a type error without saying why in the PR.
 - **Dependencies.** `npm audit --audit-level=high` runs as `test-security` and must stay clean.

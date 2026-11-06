@@ -78,11 +78,19 @@ jobs:
       # Self-hosted coverage badge (no external service), same pattern as this portfolio's
       # other repos: uploaded as a build artifact.
       - run: node scripts/generate-coverage-badge.mjs coverage/coverage-summary.json coverage-badge.json
+      - name: Hand the coverage badge over for the bot commit
+        run: |
+          set -eu
+          mkdir -p "$RUNNER_TEMP/badge-handover/files/.github/badges"
+          cp coverage-badge.json "$RUNNER_TEMP/badge-handover/files/.github/badges/coverage.json"
+          printf '%s\n' .github/badges/coverage.json > "$RUNNER_TEMP/badge-handover/manifest.txt"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: coverage-badge
-          path: coverage-badge.json
-          retention-days: 7
+          name: coverage-badge-handover
+          path: ${{ runner.temp }}/badge-handover
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
 
   test-security:
     runs-on: ubuntu-latest
@@ -175,7 +183,7 @@ jobs:
     concurrency:
       group: homelab-hub-release-chain
       cancel-in-progress: false
-    uses: lukislp/lktec-bot/.github/workflows/release.yml@38079b17498fcfda986f427fd6258bd32185e7c3 # v0.2.0
+    uses: lukislp/lktec-bot/.github/workflows/release.yml@f1dbc56e0810b5f78691019889fc76cf5423d7fa # v0.3.0
     with:
       dry-run: true
     secrets:
@@ -308,17 +316,18 @@ jobs:
   # (module sync: docs/modules/sync.md in lukislp/lktec-bot; the App is a bypass actor of the branch ruleset
   # for this one commit, which GitHub signs itself). Flux picks the new tag up from the branch.
   deploy-bump:
-    needs: [get-version, release, docker-manifest-merge, trivy-scan]
+    needs: [get-version, release, docker-manifest-merge, trivy-scan, test-coverage]
     if: github.event_name == 'push' && needs.release.outputs.released == 'true'
     concurrency:
       group: homelab-hub-release-chain
       cancel-in-progress: false
-    uses: lukislp/lktec-bot/.github/workflows/deploy-bump.yml@38079b17498fcfda986f427fd6258bd32185e7c3 # v0.2.0
+    uses: lukislp/lktec-bot/.github/workflows/deploy-bump.yml@f1dbc56e0810b5f78691019889fc76cf5423d7fa # v0.3.0
     with:
       version: ${{ needs.release.outputs.version }}
       images: 'ghcr\.io/lukislp/(homelab-hub)'
       paths: k8s
       branch: master
+      handover-artifact: coverage-badge-handover
     secrets:
       app-id: ${{ secrets.LKTEC_BOT_APP_ID }}
       private-key: ${{ secrets.LKTEC_BOT_PRIVATE_KEY }}
@@ -367,7 +376,7 @@ jobs:
     concurrency:
       group: homelab-hub-release-chain
       cancel-in-progress: false
-    uses: lukislp/lktec-bot/.github/workflows/release.yml@38079b17498fcfda986f427fd6258bd32185e7c3 # v0.2.0
+    uses: lukislp/lktec-bot/.github/workflows/release.yml@f1dbc56e0810b5f78691019889fc76cf5423d7fa # v0.3.0
     secrets:
       app-id: ${{ secrets.LKTEC_BOT_APP_ID }}
       private-key: ${{ secrets.LKTEC_BOT_PRIVATE_KEY }}
